@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "FreeRTOS2560", "FreeRTOS2560\FreeRTOS2560.cppproj", "{C76D2649-575A-425A-8127-3650965F1117}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C76D2649-575A-425A-8127-3650965F1117}.Debug|AVR.ActiveCfg = Debug|AVR
+		{C76D2649-575A-425A-8127-3650965F1117}.Debug|AVR.Build.0 = Debug|AVR
+		{C76D2649-575A-425A-8127-3650965F1117}.Release|AVR.ActiveCfg = Release|AVR
+		{C76D2649-575A-425A-8127-3650965F1117}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
