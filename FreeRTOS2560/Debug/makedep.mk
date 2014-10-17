@@ -6,7 +6,13 @@ FreeRTOS2560.cpp
 
 heap_1.c
 
+HMC5883L.cpp
+
+I2Cdev.cpp
+
 list.c
+
+MPU6050.cpp
 
 port.c
 

@@ -38,9 +38,10 @@ FreeRTOS2560.d FreeRTOS2560.o: .././FreeRTOS2560.cpp \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/Printable.h \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/new.h \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/variants/mega/pins_arduino.h \
+ .././I2Cdev.h \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/Wire/Wire.h \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/Stream.h \
- .././Kalman.h
+ .././MPU6050.h .././Wire.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\avr\io.h:
 
@@ -120,8 +121,12 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-g
 
 ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/variants/mega/pins_arduino.h:
 
+.././I2Cdev.h:
+
 ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/Wire/Wire.h:
 
 ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/Stream.h:
 
-.././Kalman.h:
+.././MPU6050.h:
+
+.././Wire.h:

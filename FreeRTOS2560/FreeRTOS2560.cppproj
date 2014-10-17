@@ -101,7 +101,7 @@
             <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
         <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
         <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
@@ -128,7 +128,7 @@
             <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman</Value>
           </ListValues>
         </avrgcccpp.compiler.directories.IncludePaths>
-        <avrgcccpp.compiler.optimization.level>Optimize (-O1)</avrgcccpp.compiler.optimization.level>
+        <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
         <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
         <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
@@ -155,10 +155,28 @@
     <Compile Include="heap_1.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="HMC5883L.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HMC5883L.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="I2Cdev.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="I2Cdev.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Kalman.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="list.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="MPU6050.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="MPU6050.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="port.c">

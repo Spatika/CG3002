@@ -44,11 +44,6 @@ THE SOFTWARE.
 */
 
 #include "I2Cdev.h"
-#include <Wire.h>
-#include <avr/io.h>
-#include <Arduino.h>
-#include <stdio.h>
-#include <string.h>
 
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 
@@ -378,7 +373,7 @@ int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint1
             }
         #elif (ARDUINO == 100)
             // Arduino v1.0.0, Wire library
-            // Adds standardized write() and read() stream methods instead of write() and read()
+            // Adds standardized write() and read() stream methods instead of send() and receive()
     
             // I2C/TWI subsystem uses internal buffer that breaks with large data requests
             // so if user requests more than BUFFER_LENGTH bytes, we have to do it in
@@ -598,10 +593,10 @@ bool I2Cdev::writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_
     uint8_t status = 0;
     #if ((I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE && ARDUINO < 100) || I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_NBWIRE)
         Wire.beginTransmission(devAddr);
-        Wire.write((uint8_t) regAddr); // write address
+        Wire.write((uint8_t) regAddr); // send address
     #elif (I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE && ARDUINO >= 100)
         Wire.beginTransmission(devAddr);
-        Wire.write((uint8_t) regAddr); // write address
+        Wire.write((uint8_t) regAddr); // send address
     #elif (I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE)
         Fastwire::beginTransmission(devAddr);
         Fastwire::write(regAddr);
@@ -653,10 +648,10 @@ bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16
     uint8_t status = 0;
     #if ((I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE && ARDUINO < 100) || I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_NBWIRE)
         Wire.beginTransmission(devAddr);
-        Wire.write(regAddr); // write address
+        Wire.write(regAddr); // send address
     #elif (I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE && ARDUINO >= 100)
         Wire.beginTransmission(devAddr);
-        Wire.write(regAddr); // write address
+        Wire.write(regAddr); // send address
     #elif (I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE)
         Fastwire::beginTransmission(devAddr);
         Fastwire::write(regAddr);
@@ -667,14 +662,14 @@ bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16
             if (i + 1 < length) Serial.print(" ");
         #endif
         #if ((I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE && ARDUINO < 100) || I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_NBWIRE)
-            Wire.write((uint8_t)(data[i] >> 8));     // write MSB
-            Wire.write((uint8_t)data[i++]);          // write LSB
+            Wire.write((uint8_t)(data[i] >> 8));     // send MSB
+            Wire.write((uint8_t)data[i++]);          // send LSB
         #elif (I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE && ARDUINO >= 100)
-            Wire.write((uint8_t)(data[i] >> 8));    // write MSB
-            Wire.write((uint8_t)data[i++]);         // write LSB
+            Wire.write((uint8_t)(data[i] >> 8));    // send MSB
+            Wire.write((uint8_t)data[i++]);         // send LSB
         #elif (I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE)
-            Fastwire::write((uint8_t)(data[i] >> 8));       // write MSB
-            status = Fastwire::write((uint8_t)data[i++]);   // write LSB
+            Fastwire::write((uint8_t)(data[i] >> 8));       // send MSB
+            status = Fastwire::write((uint8_t)data[i++]);   // send LSB
             if (status != 0) break;
         #endif
     }
@@ -759,7 +754,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
 
             //Serial.print(device, HEX);
             //Serial.print(" ");
-            TWDR = device << 1; // write device address without read bit (1)
+            TWDR = device << 1; // send device address without read bit (1)
             TWCR = (1 << TWINT) | (1 << TWEN);
             if (!waitInt()) return 3;
             twst = TWSR & 0xF8;
@@ -780,7 +775,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
 
             //Serial.print(device, HEX);
             //Serial.print(" ");
-            TWDR = device & 0xFE; // write device address without read bit (1)
+            TWDR = device & 0xFE; // send device address without read bit (1)
             TWCR = (1 << TWINT) | (1 << TWEN);
             if (!waitInt()) return 3;
             twst = TWSR & 0xF8;
@@ -789,7 +784,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
 
         //Serial.print(address, HEX);
         //Serial.print(" ");
-        TWDR = address; // write data to the previously addressed device
+        TWDR = address; // send data to the previously addressed device
         TWCR = (1 << TWINT) | (1 << TWEN);
         if (!waitInt()) return 5;
         twst = TWSR & 0xF8;
@@ -798,7 +793,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
         for (byte i = 0; i < num; i++) {
             //Serial.print(data[i], HEX);
             //Serial.print(" ");
-            TWDR = data[i]; // write data to the previously addressed device
+            TWDR = data[i]; // send data to the previously addressed device
             TWCR = (1 << TWINT) | (1 << TWEN);
             if (!waitInt()) return 7;
             twst = TWSR & 0xF8;
@@ -812,7 +807,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
     byte Fastwire::write(byte value) {
         byte twst;
         //Serial.println(value, HEX);
-        TWDR = value; // write data
+        TWDR = value; // send data
         TWCR = (1 << TWINT) | (1 << TWEN);
         if (!waitInt()) return 1;
         twst = TWSR & 0xF8;
@@ -832,7 +827,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
 
             //Serial.print(device, HEX);
             //Serial.print(" ");
-            TWDR = device & 0xfe; // write device address to write
+            TWDR = device & 0xfe; // send device address to write
             TWCR = (1 << TWINT) | (1 << TWEN);
             if (!waitInt()) return 18;
             twst = TWSR & 0xF8;
@@ -841,7 +836,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
 
         //Serial.print(address, HEX);
         //Serial.print(" ");
-        TWDR = address; // write data to the previously addressed device
+        TWDR = address; // send data to the previously addressed device
         TWCR = (1 << TWINT) | (1 << TWEN);
         if (!waitInt()) return 20;
         twst = TWSR & 0xF8;
@@ -858,7 +853,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
 
             //Serial.print(device, HEX);
             //Serial.print(" ");
-            TWDR = device | 0x01; // write device address with the read bit (1)
+            TWDR = device | 0x01; // send device address with the read bit (1)
             TWCR = (1 << TWINT) | (1 << TWEN);
             if (!waitInt()) return 24;
             twst = TWSR & 0xF8;
@@ -908,7 +903,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
     data, and know what the length actually is, we have no simple access to the object's 
     variables. The actual bytes read *is* given to the callback function, though.
     
-    The ISR code for a slave readr is commented out. I don't have that setup, and can't
+    The ISR code for a slave receiver is commented out. I don't have that setup, and can't
     verify it at this time. Save it for 2.0!
     
     The handling of the read and write processes here is much like in the demo sketch code: 
@@ -943,7 +938,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
     
     //uint8_t TwoWire::transmitting = 0;
     void (*TwoWire::user_onRequest)(void);
-    void (*TwoWire::user_onread)(int);
+    void (*TwoWire::user_onReceive)(int);
     
     static volatile uint8_t twi_transmitting;
     static volatile uint8_t twi_state;
@@ -1059,9 +1054,9 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
         if (twi_error == 0xFF)
             twi_Finish (0);    // success
         else if (twi_error == TW_MT_SLA_NACK)
-            twi_Finish (2);    // error: address write, nack readd
+            twi_Finish (2);    // error: address send, nack received
         else if (twi_error == TW_MT_DATA_NACK)
-            twi_Finish (3);    // error: data write, nack readd
+            twi_Finish (3);    // error: data send, nack received
         else
             twi_Finish (4);    // other twi error
         if (twi_cbendTransmissionDone) return twi_cbendTransmissionDone(twi_Return_Value);
@@ -1140,7 +1135,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
     }
     
     void twi_stop(void) {
-        // write stop condition
+        // send stop condition
         TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTO);
     
         // wait for stop condition to be exectued on bus
@@ -1172,9 +1167,9 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 break;
     
             // Master Transmitter
-            case TW_MT_SLA_ACK:  // slave readr acked address
-            case TW_MT_DATA_ACK: // slave readr acked data
-                // if there is data to write, write it, otherwise stop
+            case TW_MT_SLA_ACK:  // slave receiver acked address
+            case TW_MT_DATA_ACK: // slave receiver acked data
+                // if there is data to send, send it, otherwise stop
                 if (twi_masterBufferIndex < twi_masterBufferLength) {
                     // copy data to output register and ack
                     TWDR = twi_masterBuffer[twi_masterBufferIndex++];
@@ -1184,12 +1179,12 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 }
                 break;
 
-            case TW_MT_SLA_NACK:  // address sent, nack readd
+            case TW_MT_SLA_NACK:  // address sent, nack received
                 twi_error = TW_MT_SLA_NACK;
                 twi_stop();
                 break;
 
-            case TW_MT_DATA_NACK: // data sent, nack readd
+            case TW_MT_DATA_NACK: // data sent, nack received
                 twi_error = TW_MT_DATA_NACK;
                 twi_stop();
                 break;
@@ -1199,12 +1194,12 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 twi_releaseBus();
                 break;
     
-            // Master readr
-            case TW_MR_DATA_ACK: // data readd, ack sent
+            // Master Receiver
+            case TW_MR_DATA_ACK: // data received, ack sent
                 // put byte into buffer
                 twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
 
-            case TW_MR_SLA_ACK:  // address sent, ack readd
+            case TW_MR_SLA_ACK:  // address sent, ack received
                 // ack if more bytes are expected, otherwise nack
                 if (twi_masterBufferIndex < twi_masterBufferLength) {
                     twi_reply(1);
@@ -1213,23 +1208,23 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 }
                 break;
 
-            case TW_MR_DATA_NACK: // data readd, nack sent
+            case TW_MR_DATA_NACK: // data received, nack sent
                 // put final byte into buffer
                 twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
 
-            case TW_MR_SLA_NACK: // address sent, nack readd
+            case TW_MR_SLA_NACK: // address sent, nack received
                 twi_stop();
                 break;
 
         // TW_MR_ARB_LOST handled by TW_MT_ARB_LOST case
 
-        // Slave readr (NOT IMPLEMENTED YET)
+        // Slave Receiver (NOT IMPLEMENTED YET)
         /*
             case TW_SR_SLA_ACK:   // addressed, returned ack
             case TW_SR_GCALL_ACK: // addressed generally, returned ack
             case TW_SR_ARB_LOST_SLA_ACK:   // lost arbitration, returned ack
             case TW_SR_ARB_LOST_GCALL_ACK: // lost arbitration, returned ack
-                // enter slave readr mode
+                // enter slave receiver mode
                 twi_state = TWI_SRX;
 
                 // indicate that rx buffer can be overwritten and ack
@@ -1237,8 +1232,8 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 twi_reply(1);
                 break;
 
-            case TW_SR_DATA_ACK:       // data readd, returned ack
-            case TW_SR_GCALL_DATA_ACK: // data readd generally, returned ack
+            case TW_SR_DATA_ACK:       // data received, returned ack
+            case TW_SR_GCALL_DATA_ACK: // data received generally, returned ack
                 // if there is still room in the rx buffer
                 if (twi_rxBufferIndex < TWI_BUFFER_LENGTH) {
                     // put byte in buffer and ack
@@ -1250,27 +1245,27 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 }
                 break;
 
-            case TW_SR_STOP: // stop or repeated start condition readd
+            case TW_SR_STOP: // stop or repeated start condition received
                 // put a null char after data if there's room
                 if (twi_rxBufferIndex < TWI_BUFFER_LENGTH) {
                     twi_rxBuffer[twi_rxBufferIndex] = 0;
                 }
 
-                // writes ack and stops interface for clock stretching
+                // sends ack and stops interface for clock stretching
                 twi_stop();
 
                 // callback to user defined callback
-                twi_onSlaveread(twi_rxBuffer, twi_rxBufferIndex);
+                twi_onSlaveReceive(twi_rxBuffer, twi_rxBufferIndex);
 
                 // since we submit rx buffer to "wire" library, we can reset it
                 twi_rxBufferIndex = 0;
 
-                // ack future responses and leave slave readr state
+                // ack future responses and leave slave receiver state
                 twi_releaseBus();
                 break;
 
-            case TW_SR_DATA_NACK:       // data readd, returned nack
-            case TW_SR_GCALL_DATA_NACK: // data readd generally, returned nack
+            case TW_SR_DATA_NACK:       // data received, returned nack
+            case TW_SR_GCALL_DATA_NACK: // data received generally, returned nack
                 // nack back at master
                 twi_reply(0);
                 break;
@@ -1303,7 +1298,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 // copy data to output register
                 TWDR = twi_txBuffer[twi_txBufferIndex++];
 
-                // if there is more to write, ack, otherwise nack
+                // if there is more to send, ack, otherwise nack
                 if (twi_txBufferIndex < twi_txBufferLength) {
                     twi_reply(1);
                 } else {
@@ -1311,11 +1306,11 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
                 }
                 break;
 
-            case TW_ST_DATA_NACK: // readd nack, we are done
-            case TW_ST_LAST_DATA: // readd ack, but we are done already!
+            case TW_ST_DATA_NACK: // received nack, we are done
+            case TW_ST_LAST_DATA: // received ack, but we are done already!
                 // ack future responses
                 twi_reply(1);
-                // leave slave readr state
+                // leave slave receiver state
                 twi_state = TWI_READY;
                 break;
             */
@@ -1381,7 +1376,7 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
         return;
     }
     
-    void TwoWire::write(uint8_t data) {
+    void TwoWire::send(uint8_t data) {
         if (twi_transmitting) {
             // in master transmitter mode
             // don't bother if buffer is full
@@ -1396,13 +1391,13 @@ uint16_t I2Cdev::readTimeout = I2CDEV_DEFAULT_READ_TIMEOUT;
             // update amount in buffer
             txBufferLength = txBufferIndex;
         } else {
-            // in slave write mode
+            // in slave send mode
             // reply to master
             //twi_transmit(&data, 1);
         }
     }
     
-    uint8_t TwoWire::read(void) {
+    uint8_t TwoWire::receive(void) {
         // default to returning null char
         // for people using with char strings
         uint8_t value = 0;

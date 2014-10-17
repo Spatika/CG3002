@@ -45,7 +45,10 @@ THE SOFTWARE.
 
 #ifndef _I2CDEV_H_
 #define _I2CDEV_H_
+#include <Wire.h>
+#include <stdint.h>
 
+#include <Arduino.h>
 // -----------------------------------------------------------------------------
 // I2C interface implementation setting
 // -----------------------------------------------------------------------------
@@ -69,8 +72,6 @@ THE SOFTWARE.
 // Arduino-style "Serial.print" debug constant (uncomment to enable)
 // -----------------------------------------------------------------------------
 //#define I2CDEV_SERIAL_DEBUG
-
-#include <stdint.h>
 
 #ifdef ARDUINO
     #if ARDUINO < 100
