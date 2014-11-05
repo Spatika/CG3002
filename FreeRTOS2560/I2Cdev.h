@@ -42,13 +42,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ===============================================
 */
-
+#include <inttypes.h>
 #ifndef _I2CDEV_H_
 #define _I2CDEV_H_
-#include <Wire.h>
-#include <stdint.h>
 
-#include <Arduino.h>
 // -----------------------------------------------------------------------------
 // I2C interface implementation setting
 // -----------------------------------------------------------------------------

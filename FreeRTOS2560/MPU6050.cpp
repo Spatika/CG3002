@@ -34,6 +34,8 @@ THE SOFTWARE.
 ===============================================
 */
 
+#include <stdlib.h>
+#include <string.h>
 #include "MPU6050.h"
 
 /** Default constructor, uses default I2C address.
@@ -72,8 +74,7 @@ void MPU6050::initialize() {
  * @return True if connection is valid, false otherwise
  */
 bool MPU6050::testConnection() {
-	Serial.println(getDeviceID());
-    return getDeviceID() == 0x34;
+    return getDeviceID() == 0x68;
 }
 
 // AUX_VDDIO register (InvenSense demo code calls this RA_*G_OFFS_TC)
@@ -2475,9 +2476,7 @@ uint8_t MPU6050::getClockSource() {
  * @see MPU6050_PWR1_CLKSEL_LENGTH
  */
 void MPU6050::setClockSource(uint8_t source) {
-    boolean b = I2Cdev::writeBits(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, source);
-	Serial.print(devAddr);
-	Serial.println(b);
+    I2Cdev::writeBits(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, source);
 }
 
 // PWR_MGMT_2 register

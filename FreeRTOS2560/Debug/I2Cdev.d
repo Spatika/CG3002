@@ -1,8 +1,8 @@
 I2Cdev.d I2Cdev.o: .././I2Cdev.cpp .././I2Cdev.h \
- ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/Wire/Wire.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\inttypes.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdint.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\stdint.h \
+ ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/Wire/Wire.h \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/Stream.h \
  ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/Print.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\stdio.h \
@@ -35,13 +35,13 @@ I2Cdev.d I2Cdev.o: .././I2Cdev.cpp .././I2Cdev.h \
 
 .././I2Cdev.h:
 
-../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/Wire/Wire.h:
-
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\inttypes.h:
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\lib\gcc\avr\4.8.1\include\stdint.h:
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\stdint.h:
+
+../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/Wire/Wire.h:
 
 ../../../../../../../../Program\ Files\ (x86)/Arduino/hardware/arduino/cores/arduino/Stream.h:
 

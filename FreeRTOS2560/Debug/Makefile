@@ -38,7 +38,6 @@ SUBDIRS :=
 C_SRCS +=  \
 ../FreeRTOS2560.cpp \
 ../heap_1.c \
-../HMC5883L.cpp \
 ../I2Cdev.cpp \
 ../list.c \
 ../MPU6050.cpp \
@@ -58,7 +57,6 @@ ASM_SRCS +=
 OBJS +=  \
 FreeRTOS2560.o \
 heap_1.o \
-HMC5883L.o \
 I2Cdev.o \
 list.o \
 MPU6050.o \
@@ -71,7 +69,6 @@ Wire.o
 OBJS_AS_ARGS +=  \
 FreeRTOS2560.o \
 heap_1.o \
-HMC5883L.o \
 I2Cdev.o \
 list.o \
 MPU6050.o \
@@ -84,7 +81,6 @@ Wire.o
 C_DEPS +=  \
 FreeRTOS2560.d \
 heap_1.d \
-HMC5883L.d \
 I2Cdev.d \
 list.d \
 MPU6050.d \
@@ -97,7 +93,6 @@ Wire.d
 C_DEPS_AS_ARGS +=  \
 FreeRTOS2560.d \
 heap_1.d \
-HMC5883L.d \
 I2Cdev.d \
 list.d \
 MPU6050.d \
@@ -139,19 +134,17 @@ LIB_DEP+=
 
 
 
-
-
 ./%.o: .././%.c
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 4.8.1
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1056\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/arduino" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/variants/mega" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Demo\Common\include" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\include" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/NewPing" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/HMC5883L" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/I2Cdev" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/MPU6050" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Wire" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1056\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/arduino" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/variants/mega" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Demo\Common\include" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\include" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/NewPing" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Wire" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/I2Cdev" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/MPU6050"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
 	@echo Finished building: $<
 	
 
 ./%.o: .././%.cpp
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler : 4.8.1
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1056\avr8-gnu-toolchain\bin\avr-g++.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DDEBUG  -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/arduino" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/variants/mega" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Demo\Common\include" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\include" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/NewPing" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/HMC5883L" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/I2Cdev" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/MPU6050" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Wire" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1056\avr8-gnu-toolchain\bin\avr-g++.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DDEBUG  -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/arduino" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/variants/mega" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Demo\Common\include" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560" -I"E:\FreeRTOSV8.1.2\FreeRTOS\Source\include" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/NewPing" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Wire" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/I2Cdev" -I"../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/MPU6050"  -Os -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
 	@echo Finished building: $<
 	
 

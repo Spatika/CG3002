@@ -411,8 +411,12 @@ void vPortYieldFromTick( void )
 /*-----------------------------------------------------------*/
 
 /*
- * Setup timer 1 compare match A to generate a tick interrupt.
+ * Setup timer 2 compare match A to generate a tick interrupt.
  */
+
+//any other changes to make? other than to port.c? if you're changing your timer?
+ 
+
 static void prvSetupTimerInterrupt(void)
 {
 	TCCR2A=0b00000010;
