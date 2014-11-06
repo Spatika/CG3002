@@ -83,7 +83,7 @@ Changes from V2.6.0
  *----------------------------------------------------------*/
 
 /* Start tasks with interrupts enables. */
-#define portFLAGS_INT_ENABLED					( ( StackType_t ) 0x80 )
+#define portFLAGS_INT_ENABLED					( ( StackType_t ) 0x80 ) 
 
 /* Hardware constants for timer 1. */
 #define portCLEAR_COUNTER_ON_MATCH				( ( uint8_t ) 0x08 )
@@ -115,7 +115,6 @@ extern volatile TCB_t * volatile pxCurrentTCB;
  * The interrupts will have been disabled during the call to portSAVE_CONTEXT()
  * so we need not worry about reading/writing to the stack pointer. 
  */
-
 #define portSAVE_CONTEXT()									\
 	asm volatile (	"push	r0						\n\t"	\
 					"in		r0, __SREG__			\n\t"	\
@@ -411,19 +410,30 @@ void vPortYieldFromTick( void )
 /*-----------------------------------------------------------*/
 
 /*
- * Setup timer 2 compare match A to generate a tick interrupt.
+ * Setup timer 1 compare match A to generate a tick interrupt.
  */
 
-//any other changes to make? other than to port.c? if you're changing your timer?
- 
 
 static void prvSetupTimerInterrupt(void)
-{
-	TCCR2A=0b00000010;
-	TCNT2=0;
-	OCR2A=configTICK_RATE_HZ*configCPU_CLOCK_HZ/64000000;
-	TIMSK2|=0b10;
-	TCCR2B=0b00000011;
+{// We want to configure Timer1 in mode 8: WGM1[3:0] = { 1, 0, 0, 0 }
+// The timer TOP will be designated by ICR1, and the overflow flag will
+// be set at BOTTOM (0)
+
+// OCR[3:1] mode bits: all disabled
+// WGM[1:0] : 0
+TCCR1A = 0;
+// Clock source will be set to CLKio/1 (no preScaling)
+// CS1[2:0]= { 0, 0, 1 }
+// WGM[3] = 1
+// WGM[2] = 0
+TCCR1B = _BV(CS10) | _BV(WGM13);
+
+// CLKio = 16000000MHz. so a 1khz tick has a period of 16000.
+// For whatever reason, it looks like the ICR value has to be half that?
+ICR1 = 8000;
+
+// Enable the timer1 overflow interrupt.
+TIMSK1 = _BV(TOIE1);
 }
 /*-----------------------------------------------------------*/
 
@@ -434,7 +444,8 @@ static void prvSetupTimerInterrupt(void)
 	 * the context is saved at the start of vPortYieldFromTick().  The tick
 	 * count is incremented after the context is saved.
 	 */
-	ISR (TIMER2_COMPA_vect, ISR_NAKED)
+	
+	ISR (TIMER1_OVF_vect, ISR_NAKED)
 	{
 		vPortYieldFromTick();
 		asm volatile ( "reti" );
@@ -446,7 +457,8 @@ static void prvSetupTimerInterrupt(void)
 	 * tick count.  We don't need to switch context, this can only be done by
 	 * manual calls to taskYIELD();
 	 */
-	ISR(TIMER2_COMPA_vect))
+	
+	ISR(TIMER1_OVF_vect))
 	{
 		xTaskIncrementTick();
 	}

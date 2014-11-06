@@ -92,7 +92,10 @@
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/variants/mega</Value>
       <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Demo\Common\include</Value>
       <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560</Value>
+      <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Source</Value>
       <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Source\include</Value>
+      <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/RTOSSerial</Value>
+      <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/cserial</Value>
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/NewPing</Value>
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Wire</Value>
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman</Value>
@@ -119,6 +122,8 @@
       <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Demo\Common\include</Value>
       <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560</Value>
       <Value>E:\FreeRTOSV8.1.2\FreeRTOS\Source\include</Value>
+      <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/RTOSSerial</Value>
+      <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/cserial</Value>
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/NewPing</Value>
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Wire</Value>
       <Value>../../../../../../../../Program Files (x86)/Arduino/hardware/arduino/cores/Kalman</Value>
@@ -166,6 +171,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="MPU6050.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="NewPing.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="NewPing.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="port.c">

@@ -12,6 +12,8 @@ list.c
 
 MPU6050.cpp
 
+NewPing.cpp
+
 port.c
 
 queue.c
