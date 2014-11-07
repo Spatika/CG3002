@@ -21,9 +21,7 @@ queue.d queue.o: .././queue.c \
  E:\FreeRTOSV8.1.2\FreeRTOS\Source\portable\GCC\ATMega2560/portmacro.h \
  E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/mpu_wrappers.h \
  E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/task.h \
- E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/list.h \
- E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/queue.h \
- E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/FreeRTOS.h
+ E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/list.h .././queue.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\stdlib.h:
 
@@ -71,6 +69,4 @@ E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/task.h:
 
 E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/list.h:
 
-E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/queue.h:
-
-E:\FreeRTOSV8.1.2\FreeRTOS\Source\include/FreeRTOS.h:
+.././queue.h:

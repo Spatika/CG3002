@@ -185,6 +185,9 @@
     <Compile Include="queue.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="queue.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="tasks.c">
       <SubType>compile</SubType>
     </Compile>
