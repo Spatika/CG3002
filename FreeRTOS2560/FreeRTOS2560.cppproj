@@ -138,8 +138,8 @@
   <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
   <avrgcccpp.linker.libraries.Libraries>
     <ListValues>
-      <Value>libarduino.a</Value>
       <Value>libm</Value>
+      <Value>libarduino.a</Value>
     </ListValues>
   </avrgcccpp.linker.libraries.Libraries>
   <avrgcccpp.linker.libraries.LibrarySearchPaths>
@@ -162,6 +162,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="I2Cdev.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Kalman.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="list.c">
