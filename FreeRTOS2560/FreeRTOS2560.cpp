@@ -35,7 +35,7 @@ using namespace std ;
 #define ECHO_PIN5     51  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
 
-#define SONAR_NUM     5 // Number or sensors.
+#define SONAR_NUM     4 // Number or sensors.
 #define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
 #define PING_INTERVAL 20 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
 
@@ -52,7 +52,7 @@ int flagM1 = 0; int flagM2 = 0;
 NewPing sonar[SONAR_NUM] = {     // Sensor object array.
 	NewPing(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
 	NewPing(TRIGGER_PIN2, ECHO_PIN2, MAX_DISTANCE),
-	NewPing(TRIGGER_PIN3, ECHO_PIN3, MAX_DISTANCE),
+	//NewPing(TRIGGER_PIN3, ECHO_PIN3, MAX_DISTANCE),
 	NewPing(TRIGGER_PIN4, ECHO_PIN4, MAX_DISTANCE),
 	NewPing(TRIGGER_PIN5, ECHO_PIN5, MAX_DISTANCE)
 };
@@ -294,12 +294,7 @@ void MotorVibe(int i, int on){
 int sensorRead(int i) {
   unsigned int uS = sonar[i].ping(); // Send ping, get ping time in microseconds (uS).
   float reading  = uS / US_ROUNDTRIP_CM;
-  //Serial.println(uS / US_ROUNDTRIP_CM);
-  //Serial.println(reading);
-  /*Serial.print(i);
-  Serial.print(": ");
-  Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-  Serial.println("cm");*/
+
   switch(i + 1){
     
    //left motor vibrate 
@@ -331,38 +326,6 @@ int sensorRead(int i) {
   //front low - 3 small vibrates 
   case 5:
 	break ;
-    /*if(countH<10){
-      height[countH] = reading;
-      avg = height[0];
-      countH++;
-    }
-    if(countH == 10){
-      for(int i=0;i<10;i++){
-        avg += height[i];
-      }
-      if(i==10)
-      {
-        avg/=10;
-      }
-    }
-        
-    //Step
-    if(reading < avg && reading > avg -15){
-      MotorVibe(3, 1 );
-     /* delay(150);
-      MotorVibe(3, 0 );
-      delay(150);
-      MotorVibe(3, 1 );*/
-    //}
-    //Obstacle
-    /*else if(reading < avg -15) {
-      MotorVibe(3, 1);
-    }
-    //floor
-    else {
-      MotorVibe(3,0);
-    }
-    break; */
   }
   
 }
@@ -470,7 +433,7 @@ void task1(void*p) {
 			 sensorRead(1);
 			 sensorRead(2);
 			 sensorRead(3);
-			 sensorRead(4);
+			// sensorRead(4);
 			 if(flagM1 == 1){
 				 MotorVibe(1, 1);
 			 }
@@ -490,7 +453,7 @@ void task1(void*p) {
 			xSemaphoreGive( printing_semphr );
 			/* Yield so that task2 can be scheduled */
 			vPortYield();
-			vTaskDelay(500) ;
+			vTaskDelay(1000) ;
 			
 			} else {
 			/* If the semaphore take timed out, something has gone wrong. */
@@ -596,7 +559,7 @@ void task2(void *p) {
 				dtostrf(compassVal,3,2,comp);
 				
 				
-				ltoa(millis(), mil, 10);
+				ltoa(millis(), mil, 10) ;
 				strcpy(output,"(accelerometerReading = ( x = ");
 				strcat(output, acclxCh);
 				strcat(output, ", y = ");
@@ -615,12 +578,12 @@ void task2(void *p) {
 			xSemaphoreGive( printing_semphr );
 			/* Yield so that task1 can be scheduled */
 			vPortYield();
-			vTaskDelay(1000) ;
+			vTaskDelay(50) ;
 		} 
 			
 		else {
 			/* If the semaphore take timed out, something has gone wrong. */
-			Serial.println("** Task 2 Error: could not take semaphore **");
+			Serial. ("** Task 2 Error: could not take semaphore **");
 			/* Hang thread rather than continue. */
 			for(;;);
 		}
