@@ -19,20 +19,46 @@ using namespace std ;
 
 
 /*US Setup */
-#define TRIGGER_PIN1  12  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN1     11  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN1  42  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN1     43  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
-#define TRIGGER_PIN2  10  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN2     7 // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN2  44  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN2     45 // Arduino pin tied to echo pin on the ultrasonic sensor.
 
-#define TRIGGER_PIN3  12  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN3     11  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN3  46  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN3     47  // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+#define TRIGGER_PIN4  48  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN4     49  // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+#define TRIGGER_PIN5  50  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN5     51  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
 
-#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define SONAR_NUM     5 // Number or sensors.
+#define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
+#define PING_INTERVAL 33 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
 
-NewPing sonar1(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar2(TRIGGER_PIN2, ECHO_PIN2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+//1 - left 60
+//2 - right 60
+//3 top front 80
+//4 front mid 80
+//5 front low 80
+//unsigned long pingTimer[SONAR_NUM]; // Holds the times when the next ping should happen for each sensor.
+unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
+uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
+
+NewPing sonar[SONAR_NUM] = {     // Sensor object array.
+	NewPing(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
+	NewPing(TRIGGER_PIN2, ECHO_PIN2, MAX_DISTANCE),
+	NewPing(TRIGGER_PIN3, ECHO_PIN3, MAX_DISTANCE),
+	NewPing(TRIGGER_PIN4, ECHO_PIN4, MAX_DISTANCE),
+	NewPing(TRIGGER_PIN5, ECHO_PIN5, MAX_DISTANCE)
+};
+
+uint32_t PingTimer;
+uint32_t count;
+
 
 /*US Setup */
 
@@ -228,10 +254,146 @@ void calibrateMag() { // Inspired by: https://code.google.com/p/open-headtracker
 
 /*I2C Functions*/
 
+
+/*NewPing functions */
+
+
+//motor 1, no 8, LHS
+//motor 2, no 9, RHS
+
+void MotorVibe(int i, int on){
+	if(i == 1) {
+		if(on == 1)
+		digitalWrite(motor1, HIGH);	// turn the motor on
+		else
+		digitalWrite(motor1, LOW);
+	}
+	
+	else if(i == 2) {
+		if(on == 1)
+		digitalWrite(motor2, HIGH);	// turn the motor on
+		else
+		digitalWrite(motor2, LOW);	// turn the motor off
+	}
+	
+	else {
+		if(on == 1){
+			digitalWrite(motor1, HIGH);	// turn the motor on
+			digitalWrite(motor2, HIGH);
+		}
+		else {
+			digitalWrite(motor1, LOW);	// turn the motor off
+			digitalWrite(motor2, LOW);
+		}
+
+	}
+}
+
+
+void sensorRead(int i) {
+  unsigned int uS = sonar[i].ping(); // Send ping, get ping time in microseconds (uS).
+  float reading  = uS / US_ROUNDTRIP_CM;
+  Serial.print(i);
+  Serial.print(": ");
+  Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+  Serial.println("cm");
+  
+  switch(i + 1){
+    
+   //left motor vibrate 
+  case 1 : 
+    if(reading < 60 && reading > 0) {
+      MotorVibe(1,1);
+    }
+    else {
+      MotorVibe(1,0);
+    }
+    break;
+    
+  //right motor vibrate
+  case 2 : 
+    if(reading < 60 && reading > 0) {
+      MotorVibe(2, 1);
+    }
+    else
+      MotorVibe(2,0);
+    break;
+  //top facing middle sensor  
+  case 3:
+  
+  //front middle
+  case 4: 
+  
+  
+    if(reading < 80 && reading > 0){
+      MotorVibe(3, 1);
+    }
+    else
+      MotorVibe(3,0);
+    break;
+    
+  //front low - 3 small vibrates 
+  case 5:
+	break ;
+    /*if(countH<10){
+      height[countH] = reading;
+      avg = height[0];
+      countH++;
+    }
+    if(countH == 10){
+      for(int i=0;i<10;i++){
+        avg += height[i];
+      }
+      if(i==10)
+      {
+        avg/=10;
+      }
+    }
+        
+    //Step
+    if(reading < avg && reading > avg -15){
+      MotorVibe(3, 1 );
+     /* delay(150);
+      MotorVibe(3, 0 );
+      delay(150);
+      MotorVibe(3, 1 );*/
+    //}
+    //Obstacle
+    /*else if(reading < avg -15) {
+      MotorVibe(3, 1);
+    }
+    //floor
+    else {
+      MotorVibe(3,0);
+    }
+    break; */
+  }
+}
+
 void setup() {
 	
 	  Wire.begin();
 	  Serial.begin(115200);
+	  
+  // ----------------------------------For handshake-------------------------------
+  //wait for SOMETHINGGGGG from RPi
+  int count = 0 ; 
+  while(1) {
+   
+   if(Serial.available()) {
+   
+     // read the incoming byte:
+     char readChar = Serial.read();
+     count++ ;
+     
+     if(count==1)
+       Serial.println(readChar) ;
+   
+     if(count==2)
+       break;
+     }
+   }
+
 	
 	  TWBR = ((F_CPU / 400000L) - 16) / 2; // Set I2C frequency to 400kHz
 
@@ -279,27 +441,73 @@ void setup() {
 	  kalmanZ.setAngle(yaw); // And finally yaw
 	  gyroZangle = yaw;
 	  compAngleZ = yaw;	
+	  
+	  
+  timer = micros(); // Initialize the timer 
+  PingTimer = millis() + 100;
+  count = 0;
+  pinMode(motor1, HIGH);
+  pinMode(motor2, HIGH);
+  
+  //-------------------SECOND HANDSHAKE-----------------------
+ /* while(1) {
+   
+   if(Serial.available()) {
+   
+   // read the incoming byte:
+   char readChar = Serial.read();
+   break;
+   }
+  }*/
+
 }
 
 //US1
 void task1(void*p) {
 	while(1) {
 		if ( xSemaphoreTake( printing_semphr, PRINTING_TIMEOUT ) == pdTRUE ) {
-			//Serial.println("1: Task Loop");
+			Serial.println("1: Task Loop");
 			
+			 unsigned int uS = sonar[0].ping(); // Send ping, get ping time in microseconds (uS).
+			 Serial.print("Ping1: ");
+			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+			 Serial.println("cm");
+			 
+			 delay(PING_INTERVAL);
+			 
+			 uS = sonar[1].ping(); // Send ping, get ping time in microseconds (uS).
+			 Serial.print("Ping2: ");
+			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+			 Serial.println("cm");
+			 
+			 delay(PING_INTERVAL);
+			 
+			 uS = sonar[2].ping(); // Send ping, get ping time in microseconds (uS).
+			 Serial.print("Ping3: ");
+			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+			 Serial.println("cm");
+			 
+			 delay(PING_INTERVAL);
+			 
+			 uS = sonar[3].ping(); // Send ping, get ping time in microseconds (uS).
+			 Serial.print("Ping4: ");
+			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+			 Serial.println("cm") ;
+			 
+			 delay(PING_INTERVAL);
+			 
+			 uS = sonar[4].ping(); // Send ping, get ping time in microseconds (uS).
+			 Serial.print("Ping5: ");
+			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+			 Serial.println("cm");
+			 
 			
-			unsigned int uS = sonar1.ping(); // Send ping, get ping time in microseconds (uS).
-			Serial.print("Ping 1: ");
-			Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-			Serial.println("cm");
-			
-			
-
 			/* Give up semaphore reserving print resource */
 			xSemaphoreGive( printing_semphr );
 			/* Yield so that task2 can be scheduled */
 			vPortYield();
-			vTaskDelay(2000) ;
+			vTaskDelay(500) ;
+			
 			} else {
 			/* If the semaphore take timed out, something has gone wrong. */
 			Serial.println("** Task 1 Error: could not take semaphore **");
@@ -312,10 +520,9 @@ void task1(void*p) {
 //MPU6050 + HMC
 void task2(void *p) {
 	while(1) {
-		if ( xSemaphoreTake( printing_semphr, PRINTING_TIMEOUT ) == pdTRUE ) {
-			//Serial.println("2: Task Loop");
+		if ( xSemaphoreTake(printing_semphr, 2*PRINTING_TIMEOUT ) == pdTRUE ) {
+				Serial.println("2: Task Loop");
 			
-			 
 			   Serial.println("IMU Task") ;
 			 
 			   updateMPU6050() ;
@@ -403,27 +610,19 @@ void task2(void *p) {
 			   double acclx = (accX/ 16384.0)*9.8, accly = (accY/ 16384.0)*9.8, acclz = (accZ/ 16384.0)*9.8;
 			   double compassVal = fmod(yaw+360, 360);
 			   char ax[1000] ;
-			   //sprintf(ax, "%f", acclx) ;
-			 
-
-			  // Serial.println((String) acclx) ;
-
-				//Serial.println("( accelerometerReading = ( x = " + (String) acclx) ;
-			  // + ", y = " + String(accly)+ ", z = "+ String(acclz)+ "), " + " compassReading = " + String(compassVal) + ", currentTime = " + String(millis()) + " )");
-				
-				//String newString = String(45, DEC) ;
-				
-				//Serial.println("Hello" + newString) ;
-				//_snprintf(ax, 100, "%f", acclx) ;
-				
-				//Serial.println("Hello" + ax) ;
 				char acclxCh[10], acclyCh[10], acclzCh[10], comp[10], mil[10] ; 
 				dtostrf(acclx, 3, 2, acclxCh) ;
 				dtostrf(accly, 3, 2, acclyCh);
 				dtostrf(acclz,3,2,acclzCh);
 				dtostrf(compassVal,3,2,comp);
 				
+				
+				
 				dtostrf(millis(),3,2,mil);
+				
+				
+				Serial.println(acclxCh) ;
+				/*
 				int counter = 0;
 				while(counter==0){
 					String outi = strcat(strcat("( accelerometerReading = ( x = ",acclxCh),", y = ");
@@ -443,21 +642,20 @@ void task2(void *p) {
 					comp
 					", currentTime = "
 					mil
-					 " )";*/
-					
+					 " )";
 					
 					
 					//Serial.println(whole) ;
 					counter++;
 					//if(counter>0)
 						//break;	
-				}
+				} */
 				
 				//Serial.println(acclyCh);
 				//Serial.print(acclzCh);
 			/* Give up semaphore reserving print resource */
 			xSemaphoreGive( printing_semphr );
-			/* Yield so that task2 can be scheduled */
+			/* Yield so that task1 can be scheduled */
 			vPortYield();
 			vTaskDelay(100) ;
 		} 
@@ -472,34 +670,7 @@ void task2(void *p) {
 	}	
 }
 
-//US2 
-void task3(void * p) {
-	
- while(1) {	
-	if ( xSemaphoreTake(printing_semphr, PRINTING_TIMEOUT ) == pdTRUE ) {
-		
-	  	unsigned int uS = sonar2.ping(); // Send ping, get ping time in microseconds (uS).
-	  	Serial.print("Ping 2: ");
-	  	Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-	  	Serial.println("cm");
-	  			
-      
-	  xSemaphoreGive(printing_semphr) ;
-	  vPortYield() ;
-	  vTaskDelay(100) ;
-	}
-	
-	else {
-		/* If the semaphore take timed out, something has gone wrong. */
-		Serial.println("** Task 3 Error: could not take semaphore **");
-		/* Hang thread rather than continue. */
-		for(;;);
-	}
-	
- }
-}
-
-#define STACK_DEPTH 2048
+#define STACK_DEPTH 4096
 
 void vApplicationIdleHook()
 {
@@ -516,44 +687,18 @@ int main(void)
 	
 	TaskHandle_t t1, t2, t3 ; 
 	
-	printing_semphr =  xSemaphoreCreateMutex() ;
+	//printing_semphr =  xSemaphoreCreateMutex() ;
 	
-	//6 to 7 of them :O, they call motorVibe function
+	vSemaphoreCreateBinary(printing_semphr) ;
+	
 	xTaskCreate(task1, "UltraSonics", STACK_DEPTH, NULL, 1, &t1) ;
 	
 	xTaskCreate(task2, "IMU", STACK_DEPTH, NULL, 2, &t2) ;
 	
-	vTaskStartScheduler();
+	vTaskStartScheduler() ;
 	
 	return 0 ;
 	
-}
-
-
-void MotorVibe(int i, int on){
-	if(i == 1){
-		if(on == 1)
-		digitalWrite(motor1, HIGH);	// turn the motor on
-		else
-		digitalWrite(motor1, LOW);
-	}
-	else if(i == 2){
-		if(on == 1)
-		digitalWrite(motor2, HIGH);	// turn the motor on
-		else
-		digitalWrite(motor2, LOW);	// turn the motor off
-	}
-	else{
-		if(on == 1){
-			digitalWrite(motor1, HIGH);	// turn the motor on
-			digitalWrite(motor2, HIGH);
-		}
-		else {
-			digitalWrite(motor1, LOW);	// turn the motor off
-			digitalWrite(motor2, LOW);
-		}
-
-	}
 }
 
 
