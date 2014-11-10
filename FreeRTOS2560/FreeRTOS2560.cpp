@@ -37,7 +37,7 @@ using namespace std ;
 
 #define SONAR_NUM     5 // Number or sensors.
 #define MAX_DISTANCE 200 // Maximum distance (in cm) to ping.
-#define PING_INTERVAL 33 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
+#define PING_INTERVAL 20 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
 
 //1 - left 60
 //2 - right 60
@@ -48,6 +48,7 @@ using namespace std ;
 unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
 uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
+int flagM1 = 0; int flagM2 = 0;
 NewPing sonar[SONAR_NUM] = {     // Sensor object array.
 	NewPing(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
 	NewPing(TRIGGER_PIN2, ECHO_PIN2, MAX_DISTANCE),
@@ -290,33 +291,29 @@ void MotorVibe(int i, int on){
 }
 
 
-void sensorRead(int i) {
+int sensorRead(int i) {
   unsigned int uS = sonar[i].ping(); // Send ping, get ping time in microseconds (uS).
   float reading  = uS / US_ROUNDTRIP_CM;
-  Serial.print(i);
+  //Serial.println(uS / US_ROUNDTRIP_CM);
+  //Serial.println(reading);
+  /*Serial.print(i);
   Serial.print(": ");
   Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-  Serial.println("cm");
-  
+  Serial.println("cm");*/
   switch(i + 1){
     
    //left motor vibrate 
   case 1 : 
     if(reading < 60 && reading > 0) {
-      MotorVibe(1,1);
-    }
-    else {
-      MotorVibe(1,0);
+	  flagM1 = 1;
     }
     break;
     
   //right motor vibrate
   case 2 : 
     if(reading < 60 && reading > 0) {
-      MotorVibe(2, 1);
+	  flagM2 = 1;
     }
-    else
-      MotorVibe(2,0);
     break;
   //top facing middle sensor  
   case 3:
@@ -326,10 +323,9 @@ void sensorRead(int i) {
   
   
     if(reading < 80 && reading > 0){
-      MotorVibe(3, 1);
+	  flagM2 = 1;
+	  flagM1 = 1;
     }
-    else
-      MotorVibe(3,0);
     break;
     
   //front low - 3 small vibrates 
@@ -368,6 +364,7 @@ void sensorRead(int i) {
     }
     break; */
   }
+  
 }
 
 void setup() {
@@ -466,43 +463,30 @@ void setup() {
 void task1(void*p) {
 	while(1) {
 		if ( xSemaphoreTake( printing_semphr, PRINTING_TIMEOUT ) == pdTRUE ) {
-			Serial.println("1: Task Loop");
-			
-			 unsigned int uS = sonar[0].ping(); // Send ping, get ping time in microseconds (uS).
-			 Serial.print("Ping1: ");
-			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-			 Serial.println("cm");
+			flagM1 = 0;
+			flagM2 = 0;
 			 
-			 delay(PING_INTERVAL);
-			 
-			 uS = sonar[1].ping(); // Send ping, get ping time in microseconds (uS).
-			 Serial.print("Ping2: ");
-			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-			 Serial.println("cm");
-			 
-			 delay(PING_INTERVAL);
-			 
-			 uS = sonar[2].ping(); // Send ping, get ping time in microseconds (uS).
-			 Serial.print("Ping3: ");
-			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-			 Serial.println("cm");
-			 
-			 delay(PING_INTERVAL);
-			 
-			 uS = sonar[3].ping(); // Send ping, get ping time in microseconds (uS).
-			 Serial.print("Ping4: ");
-			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-			 Serial.println("cm") ;
-			 
-			 delay(PING_INTERVAL);
-			 
-			 uS = sonar[4].ping(); // Send ping, get ping time in microseconds (uS).
-			 Serial.print("Ping5: ");
-			 Serial.print(uS / US_ROUNDTRIP_CM); // Convert ping time to distance in cm and print result (0 = outside set distance range)
-			 Serial.println("cm");
+			 sensorRead(0);
+			 sensorRead(1);
+			 sensorRead(2);
+			 sensorRead(3);
+			 sensorRead(4);
+			 if(flagM1 == 1){
+				 MotorVibe(1, 1);
+			 }
+			 if(flagM2 == 1){
+				 MotorVibe(2, 1 );
+			 }
+			 if(flagM1 == 0){
+				 MotorVibe(1, 0 );
+			 }
+			 if(flagM2 == 0){
+				 MotorVibe(2, 0 );
+			 }
 			 
 			
 			/* Give up semaphore reserving print resource */
+			
 			xSemaphoreGive( printing_semphr );
 			/* Yield so that task2 can be scheduled */
 			vPortYield();
@@ -521,10 +505,8 @@ void task1(void*p) {
 void task2(void *p) {
 	while(1) {
 		if ( xSemaphoreTake(printing_semphr, 2*PRINTING_TIMEOUT ) == pdTRUE ) {
-				Serial.println("2: Task Loop");
+				//Serial.println("2: Task Loop");
 			
-			   Serial.println("IMU Task") ;
-			 
 			   updateMPU6050() ;
 			   updateHMC5883L() ;
 
@@ -587,9 +569,6 @@ void task2(void *p) {
 			   gyroXangle += gyroXrate * dt; // Calculate gyro angle without any filter
 			   gyroYangle += gyroYrate * dt;
 			   gyroZangle += gyroZrate * dt;
-			   //gyroXangle += kalmanX.getRate() * dt; // Calculate gyro angle using the unbiased rate from the Kalman filter
-			   //gyroYangle += kalmanY.getRate() * dt;
-			   //gyroZangle += kalmanZ.getRate() * dt;
 
 			   /* Estimate angles using complimentary filter */
 			   compAngleX = 0.93 * (compAngleX + gyroXrate * dt) + 0.07 * roll; // Calculate the angle using a Complimentary filter
@@ -606,58 +585,37 @@ void task2(void *p) {
 
 				
 
-			   String output;
+			   char output[100];
 			   double acclx = (accX/ 16384.0)*9.8, accly = (accY/ 16384.0)*9.8, acclz = (accZ/ 16384.0)*9.8;
 			   double compassVal = fmod(yaw+360, 360);
-			   char ax[1000] ;
-				char acclxCh[10], acclyCh[10], acclzCh[10], comp[10], mil[10] ; 
+
+				char acclxCh[10], acclyCh[10], acclzCh[10], comp[10], mil[30] ; 
 				dtostrf(acclx, 3, 2, acclxCh) ;
 				dtostrf(accly, 3, 2, acclyCh);
 				dtostrf(acclz,3,2,acclzCh);
 				dtostrf(compassVal,3,2,comp);
 				
 				
+				ltoa(millis(), mil, 10);
+				strcpy(output,"(accelerometerReading = ( x = ");
+				strcat(output, acclxCh);
+				strcat(output, ", y = ");
+				strcat(output, acclyCh);
 				
-				dtostrf(millis(),3,2,mil);
+				strcat(output, ", z = ");
+				strcat(output, acclzCh);
+				strcat(output, ") compassReading = ");
+				strcat(output, comp);
+				strcat(output, ", currentTime = " );
+				strcat(output, mil);
+				strcat(output, ")");
+				Serial.println(output);
 				
-				
-				Serial.println(acclxCh) ;
-				/*
-				int counter = 0;
-				while(counter==0){
-					String outi = strcat(strcat("( accelerometerReading = ( x = ",acclxCh),", y = ");
-					Serial.println(outi);
-					//strcat("","( accelerometerReading = ( x = ");
-					//char* outi;
-					//outi = strcat("( accelerometerReading = ( x = ",acclxCh);
-					//outi = strcat(outi,", y = ");
-					//char *whole = "( accelerometerReading = ( x = "
-					//acclxCh;
-				/*	", y = "
-					acclyCh
-					"z = "
-					acclzCh
-					"), "
-					" compassReading = "
-					comp
-					", currentTime = "
-					mil
-					 " )";
-					
-					
-					//Serial.println(whole) ;
-					counter++;
-					//if(counter>0)
-						//break;	
-				} */
-				
-				//Serial.println(acclyCh);
-				//Serial.print(acclzCh);
 			/* Give up semaphore reserving print resource */
 			xSemaphoreGive( printing_semphr );
 			/* Yield so that task1 can be scheduled */
 			vPortYield();
-			vTaskDelay(100) ;
+			vTaskDelay(1000) ;
 		} 
 			
 		else {
@@ -670,7 +628,7 @@ void task2(void *p) {
 	}	
 }
 
-#define STACK_DEPTH 4096
+#define STACK_DEPTH 512
 
 void vApplicationIdleHook()
 {
