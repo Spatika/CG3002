@@ -411,16 +411,18 @@ void setup() {
   count = 0;
   pinMode(motor1, HIGH);
   pinMode(motor2, HIGH);
-  
+  int count1 = 0 ;
   //Serial.println("Waiting for third handshake") ;
   //-------------------SECOND HANDSHAKE-----------------------
 	while(1) {
 	if(Serial.available()) {
-   
-	//read the incoming byte:
-	char readChar = Serial.read();
-	//Serial.print(readChar);
-	break;
+	
+	// read the incoming byte:
+		char readChar = Serial.read();
+		count1++ ;
+	
+		if(count1==2)
+			break;
    }
   }
 }
@@ -555,7 +557,7 @@ void task2(void *p) {
 			   double acclx = (accX/ 16384.0)*9.8, accly = (accY/ 16384.0)*9.8, acclz = (accZ/ 16384.0)*9.8;
 			   //compassVal += 180 ;
 
-			   double compassVal = fmod(yaw+360+180, 360);
+			   double compassVal = fmod(yaw+360+180+32, 360);
 
 				char acclxCh[10], acclyCh[10], acclzCh[10], comp[10], mil[30] ; 
 				dtostrf(acclx, 3, 2, acclxCh) ;
