@@ -48,6 +48,9 @@ using namespace std ;
 unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
 uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
+
+unsigned long beforeTaskStarts ; 
+
 int flagM1 = 0; int flagM2 = 0;
 NewPing sonar[SONAR_NUM] = {     // Sensor object array.
 	NewPing(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
@@ -409,17 +412,17 @@ void setup() {
   pinMode(motor1, HIGH);
   pinMode(motor2, HIGH);
   
+  //Serial.println("Waiting for third handshake") ;
   //-------------------SECOND HANDSHAKE-----------------------
- /* while(1) {
+	while(1) {
+	if(Serial.available()) {
    
-   if(Serial.available()) {
-   
-   // read the incoming byte:
-   char readChar = Serial.read();
-   break;
+	//read the incoming byte:
+	char readChar = Serial.read();
+	//Serial.print(readChar);
+	break;
    }
-  }*/
-
+  }
 }
 
 //US1
@@ -467,7 +470,7 @@ void task1(void*p) {
 //MPU6050 + HMC
 void task2(void *p) {
 	while(1) {
-		if ( xSemaphoreTake(printing_semphr, 2*PRINTING_TIMEOUT ) == pdTRUE ) {
+		if ( xSemaphoreTake(printing_semphr, 3*PRINTING_TIMEOUT ) == pdTRUE ) {
 				//Serial.println("2: Task Loop");
 			
 			   updateMPU6050() ;
@@ -550,7 +553,9 @@ void task2(void *p) {
 
 			   char output[100];
 			   double acclx = (accX/ 16384.0)*9.8, accly = (accY/ 16384.0)*9.8, acclz = (accZ/ 16384.0)*9.8;
-			   double compassVal = fmod(yaw+360, 360);
+			   //compassVal += 180 ;
+
+			   double compassVal = fmod(yaw+360+180, 360);
 
 				char acclxCh[10], acclyCh[10], acclzCh[10], comp[10], mil[30] ; 
 				dtostrf(acclx, 3, 2, acclxCh) ;
@@ -558,21 +563,47 @@ void task2(void *p) {
 				dtostrf(acclz,3,2,acclzCh);
 				dtostrf(compassVal,3,2,comp);
 				
+			
 				
-				ltoa(millis(), mil, 10) ;
-				strcpy(output,"(accelerometerReading = ( x = ");
+				//ltoa(millis(), mil, 10) ;
+				//double mili = millis();
+				
+				//dtostrf(mili,8,0,mil);
+				strcpy(output,"( accelerometerReading = ( x = ");
 				strcat(output, acclxCh);
 				strcat(output, ", y = ");
 				strcat(output, acclyCh);
 				
 				strcat(output, ", z = ");
 				strcat(output, acclzCh);
-				strcat(output, ") compassReading = ");
+				strcat(output, "), compassReading = ");
 				strcat(output, comp);
-				strcat(output, ", currentTime = " );
-				strcat(output, mil);
+				//strcat(output, ", currentTime = " );
+				//strcat(output, mil);
 				strcat(output, ")");
+				
+				/*
 				Serial.println(output);
+				Serial.println(millis());
+				*/
+				
+				
+				
+				if(millis() - beforeTaskStarts <= 5000) {
+					
+					Serial.println(output);
+					Serial.println(millis());
+				}
+				
+				else {
+					double amp = pow(acclx, 2) + pow(accly, 2) + pow(acclz, 2) ;
+					if(amp <= 85.0 || amp >= 120.0){
+						
+						Serial.println(output) ;
+						Serial.println(millis());
+					}
+				}
+			
 				
 			/* Give up semaphore reserving print resource */
 			xSemaphoreGive( printing_semphr );
@@ -583,7 +614,7 @@ void task2(void *p) {
 			
 		else {
 			/* If the semaphore take timed out, something has gone wrong. */
-			Serial. ("** Task 2 Error: could not take semaphore **");
+			Serial.println("** Task 2 Error: could not take semaphore **");
 			/* Hang thread rather than continue. */
 			for(;;);
 		}
@@ -605,12 +636,14 @@ int main(void)
 	
 	//includes handshake
 	setup() ;
+	beforeTaskStarts = millis() ;
 	
 	TaskHandle_t t1, t2, t3 ; 
 	
-	//printing_semphr =  xSemaphoreCreateMutex() ;
+	printing_semphr =  xSemaphoreCreateMutex() ;
 	
-	vSemaphoreCreateBinary(printing_semphr) ;
+	//vSemaphoreCreateBinary(printing_semphr) ;
+	
 	
 	xTaskCreate(task1, "UltraSonics", STACK_DEPTH, NULL, 1, &t1) ;
 	
